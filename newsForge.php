@@ -43,14 +43,13 @@ class UkReutersParser implements NewsParserInterface {
 					//echo $tsDate;
 
 					if ($tsDate==$idDate) {
-						$story->id = $matches[1];
+						$story->id   = $matches[1];
+						$story->guid = substr($matches[1],0, strlen($matches[1])-8);
 						//echo 'Valid date.';
 					} else {
 						$validId = false;
 						echo "INFO: Skipping invalid ID: ", $matches[1], "\n";
 					}
-					
-					
 
 					if ($validId && preg_match(
 							$this->timePattern, 
@@ -70,12 +69,11 @@ class UkReutersParser implements NewsParserInterface {
 			}
 			//print_r($story); break;
 			if (!empty($story->id)) {
-				echo "* ", $story->id, ': ', $story->title, "\n";
+				//echo "* ", $story->id, ': ', $story->title, "\n";
 				$stories[] = $story;
 			}
 		}
-	
-	
+		
 		return $stories;
 	}
 	
@@ -108,7 +106,7 @@ class NewsForge {
 		} else {
 			$this->logError('ERROR', "Couldn't parse DOM for $url.");
 		}
-	
+		return $stories;
 	}
 	
 	public function getParser($url) {
