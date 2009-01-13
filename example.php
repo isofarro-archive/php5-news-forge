@@ -16,5 +16,6 @@ $dayIndex = file_get_contents($htmlDir . '20070101.html');
 
 $stories = $forge->getStories('http://uk.reuters.com/', $dayIndex);
 
+echo "Retrieved ", count($stories), " stories\n";
 
 ?>
