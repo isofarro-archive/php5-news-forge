@@ -24,11 +24,11 @@ $stories = $forge->getStories('http://uk.reuters.com/');
 //print_r($stories);
 
 foreach ($stories as $story) {
-	echo " * ", $story->title, "\n";
+	echo " * ", $story->getTitle(), "\n";
 }
 
 //$story = $stories[0];
-//echo 'Getting story: ', $story->title, "\n", $story->href, "\n";
-//$storyData = $forge->getStory($story->href);
+//echo 'Getting story: ', $story->getTitle(), "\n", $story->getLink(), "\n";
+//$storyData = $forge->getStory($story);
 
 ?>

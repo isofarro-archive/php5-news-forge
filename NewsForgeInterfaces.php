@@ -32,15 +32,15 @@ class UkReutersForge extends NewsForgeApi {
 		foreach($anchors as $anchor) {
 			$href = $anchor->href;
 			if(preg_match($this->storyLinkPattern, $href, $matches)) {
-				$story           = (object) NULL;
-				$story->title    = $anchor->plaintext;
-				$story->href     = $href;
-				$story->category = $matches[1];
-				$story->guid     = $matches[2];		
+				$story = new NewsForgeStory();
+				$story->setTitle($anchor->plaintext);
+				$story->setLink($href);
+				$story->setGuid($matches[2]);		
+				$story->setCategory = $matches[1];
 				
-				if ($this->isStoryTitle($story->title)) {
-					if (empty($storyId[$story->guid])) {
-						$storyId[$story->guid] = 1;
+				if ($this->isStoryTitle($story->getTitle())) {
+					if (empty($storyId[$story->getGuid()])) {
+						$storyId[$story->getGuid()] = 1;
 						$stories[] = $story;
 					} else {
 						//echo "WARN: Dupe: ", $story->title, "\n";

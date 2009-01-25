@@ -1,4 +1,68 @@
 <?php
+
+class NewsForgeStory {
+	protected $title;
+	protected $link;
+	protected $guid;
+	protected $published;
+	
+	protected $body;
+	
+	public function getTitle() {
+		return $this->title;	
+	}
+	
+	public function setTitle($title) {
+		$this->title = $title;
+	}
+	
+	public function getLink() {
+		return $this->link;
+	}
+	
+	public function setLink($link) {
+		$this->link = $link;
+	}
+	
+	public function getGuid() {
+		return $this->guid;
+	}
+	
+	public function setGuid($guid) {
+		$this->guid = $guid;
+	}
+	
+	public function getPublished() {
+		return $this->published;
+	}
+	
+	public function setPublished($published) {
+		$this->published = $published;
+	}
+	
+	public function getBody() {
+		return $this->body;
+	}
+	
+	public function setBody($body) {
+		$this->body = $body;
+	}
+	
+	
+	// Helper methods
+	public function getFullStoryLink() {
+		return $this->link;
+	}
+
+	public function getPrintStoryLink() {
+		return $this->link;
+	}
+	
+	public function getParseStoryLink() {
+		return $this->link;
+	}
+}
+
 /**
 	A generic API wrapper
 	
