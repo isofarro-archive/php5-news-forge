@@ -1,0 +1,3 @@
+[submodule "php5-http-client"]
+	path = php5-http-client
+	url = git://github.com/isofarro/php5-http-client.git
