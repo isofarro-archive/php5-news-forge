@@ -1,13 +1,24 @@
 <?php
 
-interface NewsForgeInterface {
-	public function getStories($dom);
+abstract class NewsForgeApi {
+	abstract public function getStory($dom);
+	abstract public function getStories($dom);
 	
+	public function normaliseStoryLink($url) {
+		return $url;
+	}
 }
 
-class UkReutersForge implements NewsForgeInterface {
+class UkReutersForge extends NewsForgeApi {
 	protected $timePattern      = '/(\d{2}:\d{2} \w{2} \w{3})/';
 	protected $storyLinkPattern = '/\/article\/([^\/]+)\/id(.*)$/';
+
+	/**
+	*	Returns the story data found in the DOM
+	**/
+	public function getStory($dom) {
+	
+	}
 	
 	/**
 	* Return all the story links found in the DOM

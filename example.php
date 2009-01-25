@@ -27,4 +27,8 @@ foreach ($stories as $story) {
 	echo " * ", $story->title, "\n";
 }
 
+//$story = $stories[0];
+//echo 'Getting story: ', $story->title, "\n", $story->href, "\n";
+//$storyData = $forge->getStory($story->href);
+
 ?>
