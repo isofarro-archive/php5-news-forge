@@ -29,15 +29,21 @@ $stories = $forge->getStories(
 
 //print_r($stories);
 
-if (true) {
+if (false) {
 	foreach ($stories as $story) {
 		echo " * ", $story->getTitle(), "\n";
 	}
-} else {
+} elseif(false) {
 	$story = $stories[0];
 	echo 'Getting story: ', $story->getTitle(), "\n";
 	echo 'Getting: ', $story->getParseStoryLink(), "\n";
 	$storyData = $forge->getStory($story);
 	print_r($storyData);
+} elseif(true) {
+	foreach ($stories as $story) {
+		echo 'Getting story: ', $story->getTitle(), "\n";
+		$storyData = $forge->getStory($story);
+		//break;
+	}
 }
 ?>
