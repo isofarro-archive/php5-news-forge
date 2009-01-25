@@ -23,12 +23,14 @@ $forge->setCacheDir($cacheDir);
 $stories = $forge->getStories('http://uk.reuters.com/');
 //print_r($stories);
 
-foreach ($stories as $story) {
-	echo " * ", $story->getTitle(), "\n";
-}
+//foreach ($stories as $story) {
+//	echo " * ", $story->getTitle(), "\n";
+//}
 
-//$story = $stories[0];
-//echo 'Getting story: ', $story->getTitle(), "\n", $story->getLink(), "\n";
-//$storyData = $forge->getStory($story);
+$story = $stories[0];
+echo 'Getting story: ', $story->getTitle(), "\n";
+echo 'Getting: ', $story->getParseStoryLink(), "\n";
+$storyData = $forge->getStory($story);
+print_r($storyData);
 
 ?>

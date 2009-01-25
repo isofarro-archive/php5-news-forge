@@ -1,11 +1,45 @@
 <?php
 
 abstract class NewsForgeApi {
+	protected $domain;
+	protected $currUrl;
+	
 	abstract public function getStory($dom);
 	abstract public function getStories($dom);
+
+	public function getDomain() {
+		return $this->domain;
+	}
 	
-	public function normaliseStoryLink($url) {
-		return $url;
+	public function setDomain($domain) {
+		$this->domain = $domain;
+	}
+	
+	public function setUrl($url) {
+		$this->currUrl = $url;
+	}
+	
+	public function normaliseLink($link) {
+		//echo "INFO: Normalising link $link\n";
+		if (strpos('/', $link) == 0) {
+			// Fixed from root. Prefix with domain:
+			$link = 'http://' . $this->domain . $link;
+		} elseif (strpos('http://', $link) == 0) {
+			// Already an absolute URL. Do nothing
+		} else {
+			echo "WARN: relative URL: $link\n";
+			// TODO: get the current URL
+		}
+		//echo "INFO: Normalised $link\n";
+		return $link;
+	}
+	
+}
+
+class ReutersStory extends NewsForgeStory {
+	// Use the print article URL as the one to parse
+	public function getParseStoryLink() {
+		return 'http://uk.reuters.com/articlePrint?articleId=' . $this->guid;
 	}
 }
 
@@ -16,8 +50,56 @@ class UkReutersForge extends NewsForgeApi {
 	/**
 	*	Returns the story data found in the DOM
 	**/
-	public function getStory($dom) {
-	
+	public function getStory($dom, $story=NULL) {
+		echo "INFO: Looking for story data\n";
+		if (is_null($story)) {
+			$story = new ReutersStory();
+		}
+		
+		// Get the story title
+		$title = $dom->find('h1', 0);
+		$story->setTitle($title->plaintext);
+		
+		// Get the published date
+		$published = $dom->find('div.timestamp', 0);
+		$timestamp = strtotime($published->plaintext);
+		$story->setPublished(date('c', $timestamp));
+		
+		// Get all the paragraphs
+		$paras = $dom->find('div.article p');
+		array_shift($paras);
+		
+		$isIntro = true;
+		$isEnd   = false;
+		
+		$buffer  = array();
+		foreach($paras as $para) {
+			$text = $para->plaintext;
+			$isPara = true;
+			
+			if ($isIntro) {
+				if (preg_match('/^[A-Z]{2,}/', $text)) {
+					// Starts with an uppercase word
+					$sep     = strpos($text, ') -');
+					$text    = substr($text, $sep+4);
+					$isIntro = false;
+				}
+			} elseif (strpos($text, '&copy;')===0) {
+				$isPara = false;
+			} elseif (strpos($text, '(Reporting')===0) {
+				$isPara = false;
+				if (preg_match('/by ([^;)]+)/', $text, $matches)) {
+					// TODO: this should allow multiple authors
+					$story->setAuthor($matches[1]);
+				}
+			}
+			if ($isPara) {
+				$buffer[] = $text;			
+			}
+		}
+		
+		$story->setBody(implode("\n\n", $buffer));
+		return $story;	
 	}
 	
 	/**
@@ -32,11 +114,11 @@ class UkReutersForge extends NewsForgeApi {
 		foreach($anchors as $anchor) {
 			$href = $anchor->href;
 			if(preg_match($this->storyLinkPattern, $href, $matches)) {
-				$story = new NewsForgeStory();
+				$story = new ReutersStory();
 				$story->setTitle($anchor->plaintext);
-				$story->setLink($href);
+				$story->setLink($this->normaliseLink($href));
 				$story->setGuid($matches[2]);		
-				$story->setCategory = $matches[1];
+				$story->setCategory($matches[1]);
 				
 				if ($this->isStoryTitle($story->getTitle())) {
 					if (empty($storyId[$story->getGuid()])) {

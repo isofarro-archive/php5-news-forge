@@ -1,76 +1,13 @@
 <?php
 
-class NewsForgeStory {
-	protected $title;
-	protected $link;
-	protected $guid;
-	protected $published;
-	
-	protected $body;
-	
-	public function getTitle() {
-		return $this->title;	
-	}
-	
-	public function setTitle($title) {
-		$this->title = $title;
-	}
-	
-	public function getLink() {
-		return $this->link;
-	}
-	
-	public function setLink($link) {
-		$this->link = $link;
-	}
-	
-	public function getGuid() {
-		return $this->guid;
-	}
-	
-	public function setGuid($guid) {
-		$this->guid = $guid;
-	}
-	
-	public function getPublished() {
-		return $this->published;
-	}
-	
-	public function setPublished($published) {
-		$this->published = $published;
-	}
-	
-	public function getBody() {
-		return $this->body;
-	}
-	
-	public function setBody($body) {
-		$this->body = $body;
-	}
-	
-	
-	// Helper methods
-	public function getFullStoryLink() {
-		return $this->link;
-	}
-
-	public function getPrintStoryLink() {
-		return $this->link;
-	}
-	
-	public function getParseStoryLink() {
-		return $this->link;
-	}
-}
-
 /**
-	A generic API wrapper
-	
+*	NewsForge - Forging an API on existing news sites
+*	
 **/
 class NewsForge {
 	protected $cache;
 	//protected $spider;
-	protected $httpClient;
+	protected $http;
 	
 	protected $forges = array(
 		'uk.reuters.com' => 'UkReutersForge'
@@ -78,6 +15,22 @@ class NewsForge {
 	
 	public function setCacheDir($dir) {
 		$this->cache = new FileCache($dir);
+	}
+	
+	public function getStory($story) {
+		$link      = $story->getLink();
+		$prefLink  = $story->getParseStoryLink();
+		$domain    = $this->getDomain($prefLink);
+		$forge     = $this->getForge($domain);
+		
+		$html      = $this->getUrl($prefLink, $link);
+
+		$this->log('INFO', 'HTML returned (' . strlen($html) . ") bytes");
+		$forge->setUrl($prefLink);
+		$dom       = $this->getDom($html);
+		$storyData = $forge->getStory($dom, $story);
+
+		return $storyData;
 	}
 
 	/**
@@ -87,7 +40,9 @@ class NewsForge {
 		$domain  = $this->getDomain($url);
 		$forge   = $this->getForge($domain);
 		$html    = $this->getUrl($url);
+
 		$this->log('INFO', 'HTML returned (' . strlen($html) . ") bytes");
+		$forge->setUrl($url);
 		$dom     = $this->getDom($html);
 		$stories = $forge->getStories($dom);
 		
@@ -99,17 +54,22 @@ class NewsForge {
 		return str_get_html($html);
 	}
 
-	protected function getUrl($url) {
+	protected function getUrl($url, $referrer=NULL) {
 		if ($this->cache->isCachedUrl($url)) {
 			return $this->cache->getUrl($url);
 		} else {
-			$http = $this->getHttpClient();
-
 			$request = new HttpRequest();
 			$request->setMethod('GET');
 			$request->setUrl($url);
-		
-			$response = $http->doRequest($request);
+			
+			if ($referrer && $url!=$referrer) {
+				// Add an HTTP Referer header
+				//echo "INFO: adding Referer header\n";
+				$request->addHeader('Referer', $referrer);		
+			}
+
+			//print_r($request);
+			$response = $this->getResponse($request);
 			//print_r($response);
 
 			// Cache the response			
@@ -144,6 +104,7 @@ class NewsForge {
 			if (class_exists($className)) {
 				$forge = new $className();
 				if (is_a($forge, 'NewsForgeApi')) {
+					$forge->setDomain($domain);
 					return $forge;
 				} else {
 					$this->log('WARN', 
@@ -162,6 +123,11 @@ class NewsForge {
 			$this->httpClient = new HttpClient();
 		}
 		return $this->httpClient;
+	}
+	
+	protected function getResponse($request) {
+		$http = $this->getHttpClient();
+		return $http->doRequest($request);
 	}
 	
 	public function log($level, $msg) {
@@ -243,5 +209,91 @@ class FileCache {
 		echo $level, ': ', $msg, "\n";
 	}
 }
+
+
+/**
+*	NewsForgeStory an object encapsulating story data
+**/
+class NewsForgeStory {
+	protected $title;
+	protected $link;
+	protected $guid;
+	protected $published;
+	protected $category;
+	protected $author;
+	
+	protected $body;
+	
+	public function getTitle() {
+		return $this->title;	
+	}
+	
+	public function setTitle($title) {
+		$this->title = $title;
+	}
+	
+	public function getLink() {
+		return $this->link;
+	}
+	
+	public function setLink($link) {
+		$this->link = $link;
+	}
+	
+	public function getGuid() {
+		return $this->guid;
+	}
+	
+	public function setGuid($guid) {
+		$this->guid = $guid;
+	}
+	
+	public function getPublished() {
+		return $this->published;
+	}
+	
+	public function setPublished($published) {
+		$this->published = $published;
+	}
+	
+	public function getCategory() {
+		return $this->category;
+	}
+	
+	public function setCategory($category) {
+		$this->category = $category;
+	}
+	
+	public function getAuthor() {
+		return $this->author;
+	}
+	
+	public function setAuthor($author) {
+		$this->author = $author;
+	}
+	
+	public function getBody() {
+		return $this->body;
+	}
+	
+	public function setBody($body) {
+		$this->body = $body;
+	}
+	
+	
+	// Helper methods
+	public function getFullStoryLink() {
+		return $this->link;
+	}
+
+	public function getPrintStoryLink() {
+		return $this->link;
+	}
+	
+	public function getParseStoryLink() {
+		return $this->link;
+	}
+}
+
 
 ?>
