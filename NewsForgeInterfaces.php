@@ -1,14 +1,63 @@
 <?php
 
-interface NewsParserInterface {
+interface NewsForgeInterface {
 	public function getStories($dom);
 	
 }
 
-class UkReutersParser implements NewsParserInterface {
-	protected $timePattern = '/(\d{2}:\d{2} \w{2} \w{3})/';
+class UkReutersForge implements NewsForgeInterface {
+	protected $timePattern      = '/(\d{2}:\d{2} \w{2} \w{3})/';
+	protected $storyLinkPattern = '/\/article\/([^\/]+)\/id(.*)$/';
+	
+	/**
+	* Return all the story links found in the DOM
+	**/
+	public function getStories($dom) {
+		echo "INFO: Looking for story links... ";
+		$stories = array();
+		$storyId = array();
+		
+		$anchors = $dom->find('a');
+		foreach($anchors as $anchor) {
+			$href = $anchor->href;
+			if(preg_match($this->storyLinkPattern, $href, $matches)) {
+				$story           = (object) NULL;
+				$story->title    = $anchor->plaintext;
+				$story->href     = $href;
+				$story->category = $matches[1];
+				$story->guid     = $matches[2];		
+				
+				if ($this->isStoryTitle($story->title)) {
+					if (empty($storyId[$story->guid])) {
+						$storyId[$story->guid] = 1;
+						$stories[] = $story;
+					} else {
+						//echo "WARN: Dupe: ", $story->title, "\n";
+					}
+				}
+			} else {
+				//echo "Skipping: [", $href, "]\n";
+			}
+		}
+		
+		echo count($stories), " stories\n";
+		return $stories;	
+	}
+	
+	protected function isStoryTitle($title) {
+		if(empty($title)) {
+			return false;
+		} elseif ($title=='Full Article' || $title=='Full&nbsp;Article') {
+			return false;
+		}
+		return true;
+	}
+	
+	protected function isStoryLink($link) {
+		return preg_match($this->storyLinkPattern, $link);
+	}
 
-	function getStories($dom) {
+	function getStoriesFromArchive($dom) {
 		$stories = array();
 		// Extract a date
 		$header = $dom->find('div.contentBand h1', 0);
