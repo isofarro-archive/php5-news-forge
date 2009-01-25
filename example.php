@@ -20,17 +20,24 @@ $forge->setCacheDir($cacheDir);
 //print_r($forge);
 
 // Get all the stories listed on the Reuters UK homepage
-$stories = $forge->getStories('http://uk.reuters.com/');
+//$stories = $forge->getStories('http://uk.reuters.com/');
+
+// Get all the stories listed on an archive page
+$stories = $forge->getStories(
+	'http://uk.reuters.com/resources/archive/uk/20090124.html'
+);
+
 //print_r($stories);
 
-//foreach ($stories as $story) {
-//	echo " * ", $story->getTitle(), "\n";
-//}
-
-$story = $stories[0];
-echo 'Getting story: ', $story->getTitle(), "\n";
-echo 'Getting: ', $story->getParseStoryLink(), "\n";
-$storyData = $forge->getStory($story);
-print_r($storyData);
-
+if (true) {
+	foreach ($stories as $story) {
+		echo " * ", $story->getTitle(), "\n";
+	}
+} else {
+	$story = $stories[0];
+	echo 'Getting story: ', $story->getTitle(), "\n";
+	echo 'Getting: ', $story->getParseStoryLink(), "\n";
+	$storyData = $forge->getStory($story);
+	print_r($storyData);
+}
 ?>

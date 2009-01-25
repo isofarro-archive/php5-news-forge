@@ -32,14 +32,24 @@ abstract class NewsForgeApi {
 		}
 		//echo "INFO: Normalised $link\n";
 		return $link;
-	}
-	
+	}	
 }
 
 class ReutersStory extends NewsForgeStory {
 	// Use the print article URL as the one to parse
 	public function getParseStoryLink() {
 		return 'http://uk.reuters.com/articlePrint?articleId=' . $this->guid;
+	}
+	
+	public function normaliseTitle($title) {
+		$title = preg_replace(
+			array('/^CORRECTED\s*-/',		'/^\(OFFICIAL\) /', 
+					'/^UPDATE \d+-/',		'/^Corrected: /',
+					'/^RPT-UPDATE \d+-/' ),
+			array('', '', '', '', ''),		
+			$title
+		);
+		return trim($title);
 	}
 }
 

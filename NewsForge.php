@@ -229,7 +229,7 @@ class NewsForgeStory {
 	}
 	
 	public function setTitle($title) {
-		$this->title = $title;
+		$this->title = $this->normaliseTitle($title);
 	}
 	
 	public function getLink() {
@@ -293,6 +293,11 @@ class NewsForgeStory {
 	public function getParseStoryLink() {
 		return $this->link;
 	}
+	
+	public function normaliseTitle($title) {
+		return $title;
+	}
+
 }
 
 
