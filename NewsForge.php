@@ -7,7 +7,7 @@
 class NewsForge {
 	protected $cache;
 	//protected $spider;
-	protected $http;
+	protected $httpClient;
 	
 	protected $forges = array(
 		'uk.reuters.com' => 'UkReutersForge'
