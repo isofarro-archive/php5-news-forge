@@ -90,6 +90,10 @@ class UkReutersForge extends NewsForgeApi {
 			if ($isIntro) {
 				if (preg_match('/^&copy; /', $text)) {
 					$isPara = false;
+				} elseif (preg_match('/^By (.*)$/', $text, $matches)) {
+					$isPara = false;
+					// TODO: Normalise authors
+					$story->setAuthor($matches[1]);
 				} elseif (preg_match('/^[A-Z]{2,}/', $text)) {
 					// Starts with an uppercase word
 					$sep     = strpos($text, ') -');
@@ -97,13 +101,20 @@ class UkReutersForge extends NewsForgeApi {
 					$isIntro = false;
 				}
 			} elseif (strpos($text, '&copy;')===0) {
+				// Drop copyright notices
 				$isPara = false;
 			} elseif (strpos($text, '(Reporting')===0) {
 				$isPara = false;
 				if (preg_match('/by ([^;)]+)/', $text, $matches)) {
 					// TODO: this should allow multiple authors
-					$story->setAuthor($matches[1]);
+					$story->setAuthor($matches[1]);	
 				}
+			} elseif (strpos($text, '(Additional reporting')===0) {
+				// TODO: Deal with contributors
+				$isPara = false;
+			} elseif (preg_match('/^([A-Z ]+)$/', $text, $matches)) {
+				// This is an uppercased line. Use markdown
+				$text = '## ' . ucfirst(strtolower($matches[1])) . ' ##';
 			}
 			if ($isPara) {
 				$buffer[] = $text;			

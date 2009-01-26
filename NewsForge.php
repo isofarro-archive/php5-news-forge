@@ -18,6 +18,9 @@ class NewsForge {
 	}
 	
 	public function getStory($story) {
+		// TODO: use a decorator pattern to initialise
+		// request object on a domain by domain basis	
+	
 		$link      = $story->getLink();
 		$prefLink  = $story->getParseStoryLink();
 		$domain    = $this->getDomain($prefLink);

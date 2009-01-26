@@ -27,3 +27,5 @@ Feature list (Todo):
 * Needs to detect 'empty stories'
 
 * DEBUG: `*_CH_*`, and Guids without a date.
+* Use a Decorator pattern to allow the request object to be decorated
+  on a domain specific basis.
