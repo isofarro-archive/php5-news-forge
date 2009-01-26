@@ -26,4 +26,4 @@ Feature list (Todo):
   * getStoryEntities()
 * Needs to detect 'empty stories'
 
-* DEBUG: `*_CH_*`
+* DEBUG: `*_CH_*`, and Guids without a date.
