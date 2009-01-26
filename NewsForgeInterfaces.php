@@ -55,7 +55,7 @@ class ReutersStory extends NewsForgeStory {
 
 class UkReutersForge extends NewsForgeApi {
 	protected $timePattern      = '/(\d{2}:\d{2} \w{2} \w{3})/';
-	protected $storyLinkPattern = '/\/article\/([^\/]+)\/id(.*)$/';
+	protected $storyLinkPattern = '/\/article\/([^\/]+)\/id(.{16,})$/';
 
 	/**
 	*	Returns the story data found in the DOM

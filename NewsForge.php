@@ -29,7 +29,7 @@ class NewsForge {
 		//$html      = $this->getUrl($prefLink, $link);
 		$html      = $this->getStoryHtml($prefLink, $link);
 
-		$this->log('INFO', 'HTML returned (' . strlen($html) . ") bytes");
+		//$this->log('INFO', 'HTML returned (' . strlen($html) . ") bytes");
 		$forge->setUrl($prefLink);
 		$dom       = $this->getDom($html);
 		$storyData = $forge->getStory($dom, $story);
@@ -172,14 +172,14 @@ class FileCache {
 	public function cache($key, $body) {
 		$filePath = $this->cacheDir . $key;
 		file_put_contents($filePath, $body);
-		echo "INFO: Cached $key: (", strlen($body), ")\n";
+		//echo "INFO: Cached $key: (", strlen($body), ")\n";
 		return true;
 	}
 	
 	public function get($key) {
 		$filePath = $this->cacheDir . $key;
 		if (file_exists($filePath)) {
-			echo "INFO: Cache hit $key\n";
+			//echo "INFO: Cache hit $key\n";
 			return file_get_contents($filePath);
 		} else {
 			echo "WARN: $filePath not a cached file.\n";

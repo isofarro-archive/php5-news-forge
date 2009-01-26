@@ -35,7 +35,7 @@ $stories = $forge->getStories(
 
 //print_r($stories);
 
-if (false) {
+if (true) {
 	foreach ($stories as $story) {
 		echo " * ", $story->getTitle(), "\n";
 	}

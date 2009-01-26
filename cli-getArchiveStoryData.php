@@ -34,12 +34,25 @@ $stories = $forge->getStories(
 );
 
 
+if (false) {
+	foreach ($stories as $story) {
+		//echo " * ", $story->getTitle(), "\n";
+		if (strlen($story->getGuid()) < 16) {
+			echo $story->getGuid(), ': ', substr($story->getTitle(),0, 40), "\n";
+			//echo ' * ', $story->getLink(), "\n";
+		}
+	}
+}
+
+
 // Cache each story for further processing
 foreach ($stories as $story) {
-	echo 'Getting story: ', $story->getTitle(), "\n";
 	$storyData = $forge->getStory($story);
 	
 	if (!empty($storyData)) {
+		echo $story->getGuid(), ': ', 
+			$story->getTitle(), ' (', 
+			strlen($story->getBody()), ")\n";
 		$cache->cache(
 			$storyData->getCacheKey(),
 			serialize($storyData)
