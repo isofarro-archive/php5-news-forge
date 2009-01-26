@@ -33,17 +33,21 @@ $stories = $forge->getStories(
 	'http://uk.reuters.com/resources/archive/uk/20090124.html'
 );
 
-//print_r($stories);
 
-if (false) {
-	foreach ($stories as $story) {
-		echo " * ", $story->getTitle(), "\n";
-	}
-} elseif(true) {
-	$story = $stories[0];
+// Cache each story for further processing
+foreach ($stories as $story) {
 	echo 'Getting story: ', $story->getTitle(), "\n";
-	echo 'Getting: ', $story->getParseStoryLink(), "\n";
 	$storyData = $forge->getStory($story);
-	print_r($storyData);
+	
+	if (!empty($storyData)) {
+		$cache->cache(
+			$storyData->getCacheKey(),
+			serialize($storyData)
+		);
+	}
+	//break;
+	//sleep(2); // Use when not cached
 }
+
+
 ?>
