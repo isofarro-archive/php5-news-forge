@@ -61,7 +61,7 @@ class UkReutersForge extends NewsForgeApi {
 	*	Returns the story data found in the DOM
 	**/
 	public function getStory($dom, $story=NULL) {
-		echo "INFO: Looking for story data\n";
+		//echo "INFO: Looking for story data\n";
 		if (is_null($story)) {
 			$story = new ReutersStory();
 		}

@@ -9,3 +9,14 @@ NewsForge API methods:
 * `getStories($url)` returns all story links on the page
 * `getStory($url [, $story])` returns the story data from an article page
 
+
+
+Feature list (Todo):
+--------------------
+
+* Domain specific caching
+* File/content type specific caching
+* Generic spidering
+* Site specific spidering rules
+* Filtered getStories - matching specific criteria
+* Getting story data and cached HTML by GUID

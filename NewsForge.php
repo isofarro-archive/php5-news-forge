@@ -29,6 +29,7 @@ class NewsForge {
 		$forge->setUrl($prefLink);
 		$dom       = $this->getDom($html);
 		$storyData = $forge->getStory($dom, $story);
+		$dom->clear();
 
 		return $storyData;
 	}
@@ -296,6 +297,11 @@ class NewsForgeStory {
 	
 	public function normaliseTitle($title) {
 		return $title;
+	}
+
+	public function getCacheKey() {
+		// TODO check GUID is filename happy
+		return $this->guid . '.ser';
 	}
 
 }
