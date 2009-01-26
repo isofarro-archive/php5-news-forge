@@ -39,13 +39,13 @@ if (false) {
 	foreach ($stories as $story) {
 		echo " * ", $story->getTitle(), "\n";
 	}
-} elseif(false) {
+} elseif(true) {
 	$story = $stories[0];
 	echo 'Getting story: ', $story->getTitle(), "\n";
 	echo 'Getting: ', $story->getParseStoryLink(), "\n";
 	$storyData = $forge->getStory($story);
 	print_r($storyData);
-} elseif(true) {
+} elseif(false) {
 	// Cache each story for further processing
 	foreach ($stories as $story) {
 		echo 'Getting story: ', $story->getTitle(), "\n";

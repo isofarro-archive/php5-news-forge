@@ -23,7 +23,8 @@ class NewsForge {
 		$domain    = $this->getDomain($prefLink);
 		$forge     = $this->getForge($domain);
 		
-		$html      = $this->getUrl($prefLink, $link);
+		//$html      = $this->getUrl($prefLink, $link);
+		$html      = $this->getStoryHtml($prefLink, $link);
 
 		$this->log('INFO', 'HTML returned (' . strlen($html) . ") bytes");
 		$forge->setUrl($prefLink);
@@ -32,6 +33,10 @@ class NewsForge {
 		$dom->clear();
 
 		return $storyData;
+	}
+
+	public function getStoryHtml($url, $refUrl) {
+		return $this->getUrl($url, $refUrl);
 	}
 
 	/**
