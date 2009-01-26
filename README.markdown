@@ -20,3 +20,10 @@ Feature list (Todo):
 * Site specific spidering rules
 * Filtered getStories - matching specific criteria
 * Getting story data and cached HTML by GUID
+* Needs refined methods (with configurable caching):
+  * getStoryHtml()
+  * getStoryData()
+  * getStoryEntities()
+* Needs to detect 'empty stories'
+
+* DEBUG: `*_CH_*`
