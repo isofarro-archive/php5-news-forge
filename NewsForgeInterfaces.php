@@ -88,7 +88,9 @@ class UkReutersForge extends NewsForgeApi {
 			$isPara = true;
 			
 			if ($isIntro) {
-				if (preg_match('/^[A-Z]{2,}/', $text)) {
+				if (preg_match('/^&copy; /', $text)) {
+					$isPara = false;
+				} elseif (preg_match('/^[A-Z]{2,}/', $text)) {
 					// Starts with an uppercase word
 					$sep     = strpos($text, ') -');
 					$text    = substr($text, $sep+4);
