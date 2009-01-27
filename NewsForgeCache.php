@@ -6,16 +6,25 @@ class NewsForgeCache {
 	protected $dataDir    = 'data/';
 
 	public function setRootDir($dir) {
-		// TODO: Check the dir ends in a /
+		// TCheck the dir ends in a /
+		//echo "Root last char: ", substr($dir, -1), "\n";
+		if (substr($dir, -1)!=='/') {
+			$dir .= '/';
+		}
 		if ($this->isCacheReadyDir($dir)) {
 			$this->rootDir = $dir;
 			$this->initRootDir();
 		}
 	}
 
+	public function urlExists($url) {
+		$filePath = $this->getUrlFilePath($url);
+		return file_exists($filePath);
+	}
+
 	public function getUrl($url) {
 		$filePath = $this->getUrlFilePath($url);
-
+		return $this->load($filePath);
 	}
 	
 	public function cacheUrl($url, $data) {

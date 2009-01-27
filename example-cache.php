@@ -5,7 +5,7 @@ require_once 'NewsForgeCache.php';
 $rootCacheDir = '/home/user/data/news-forge/cache/';
 $cache = new NewsForgeCache();
 $cache->setRootDir($rootCacheDir);
-print_r($cache);
+//print_r($cache);
 
 $url = 'http://www.example.com/helloWorld.html';
 $body = <<<HTML
@@ -19,8 +19,16 @@ $body = <<<HTML
 </html>
 HTML;
 
-$cache->cacheUrl($url, $body);
+if ($cache->urlExists($url)) {
+	echo "INFO: Caching url\n";
+	$cache->cacheUrl($url, $body);
+}
 
+echo "INFO: Getting cached URL\n";
+$cachedBody = $cache->getUrl($url);
 
+if ($body===$cachedBody) {
+	echo "INFO: Cached entry match\n";
+}
 
 ?>
