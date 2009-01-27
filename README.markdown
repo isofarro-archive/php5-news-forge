@@ -15,6 +15,7 @@ Feature list (Todo):
 --------------------
 
 * Domain specific caching
+* Caching staleness check
 * File/content type specific caching
 * Generic spidering
 * Site specific spidering rules

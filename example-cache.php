@@ -19,13 +19,13 @@ $body = <<<HTML
 </html>
 HTML;
 
-if ($cache->urlExists($url)) {
+//if ($cache->isHtmlCached($url)) {
 	echo "INFO: Caching url\n";
-	$cache->cacheUrl($url, $body);
-}
+	$cache->cacheHtml($url, $body);
+//}
 
 echo "INFO: Getting cached URL\n";
-$cachedBody = $cache->getUrl($url);
+$cachedBody = $cache->getHtml($url);
 
 if ($body===$cachedBody) {
 	echo "INFO: Cached entry match\n";
