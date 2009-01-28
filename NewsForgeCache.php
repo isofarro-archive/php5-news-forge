@@ -129,7 +129,7 @@ class NewsForgeCache {
 	}
 	
 	protected function initDomainDir($domain) {
-		$dirList = array( $this->htmlDir, $this->dataDir );
+		$dirList = array( $this->htmlDir, $this->dataDir, $this->xmlDir );
 		foreach($dirList as $dir) {
 			$dirPath = $this->rootDir . $dir . $domain . '/';
 			if (!file_exists($dirPath)) {
