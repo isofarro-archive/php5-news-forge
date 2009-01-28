@@ -2,10 +2,11 @@
 
 require_once 'NewsForgeCache.php';
 
-$rootCacheDir = '/home/user/data/news-forge/cache/';
+$rootCacheDir = '/home/user/data/news-forge/cache-test/';
 $cache = new NewsForgeCache();
 $cache->setRootDir($rootCacheDir);
 //print_r($cache);
+
 
 $url = 'http://www.example.com/helloWorld.html';
 $body = <<<HTML
@@ -19,16 +20,16 @@ $body = <<<HTML
 </html>
 HTML;
 
-if ($cache->isHtmlCached($url)) {
-	echo "INFO: Caching URL\n";
-	$cache->cacheHtml($url, $body);
+if (!$cache->isCached('html', $url)) {
+	echo "INFO: Caching HTML URL\n";
+	$cache->cache('html', $url, $body);
 }
 
-echo "INFO: Getting cached URL\n";
-$cachedBody = $cache->getHtml($url);
+echo "INFO: Getting cached HTML URL\n";
+$cachedBody = $cache->get('html', $url);
 
 if ($body===$cachedBody) {
-	echo "INFO: Cached entry match\n";
+	echo "INFO: Cached HTML entry match\n";
 }
 
 
@@ -44,16 +45,16 @@ $xmlBody = <<<XML
 </rss>
 XML;
 
-if ($cache->isXmlCached($xmlUrl)) {
+if (!$cache->isCached('xml', $xmlUrl)) {
 	echo "INFO: Caching XML URL\n";
-	$cache->cacheXml($xmlUrl, $xmlBody);
+	$cache->cache('xml', $xmlUrl, $xmlBody);
 }
 
 echo "INFO: Getting cached XML URL\n";
-$cachedXmlBody = $cache->getXml($xmlUrl);
+$cachedXmlBody = $cache->get('xml', $xmlUrl);
 
 if ($xmlBody===$cachedXmlBody) {
-	echo "INFO: Cached entry match\n";
+	echo "INFO: Cached XML entry match\n";
 }
 
 

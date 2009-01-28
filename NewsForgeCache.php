@@ -2,13 +2,19 @@
 
 class NewsForgeCache {
 	protected $rootDir;
-	protected $htmlDir    = 'html/';
-	protected $dataDir    = 'data/';
-	protected $xmlDir     = 'xml/';
-	protected $miscDir    = 'misc/';
-
-	protected $defaultExpiry = 30;
-
+	protected $defaultCacheType = 'misc';
+	protected $cacheFilters     = array();
+	
+	// Extension Cache filters
+	protected $cacheTypes = array(
+		'html'   => 'NewsForgeHtmlCache',
+		'xml'    => 'NewsForgeXmlCache',
+		'calais' => 'NewsForgeCalaisCache',
+		'story'  => 'NewsForgeStoryCache',
+		'json'   => 'NewsForgeJsonCache',
+		'misc'   => 'NewsForgeGenericCache'
+	);
+	
 	public function setRootDir($dir) {
 		// Check the dir ends in a /
 		if (substr($dir, -1)!=='/') {
@@ -16,83 +22,15 @@ class NewsForgeCache {
 		}
 		if ($this->isCacheReadyDir($dir)) {
 			$this->rootDir = $dir;
-			$this->initRootDir();
+			// TODO: Go through each of the filters
+			//       and initialise their directories
 		}
 	}
-	
-	public function setDefaultExpiry($expiry) {
-		$this->defaultExpiry = $expiry;
-	}
 
-	public function isHtmlCached($url, $time=false) {
-		$filePath = $this->getUrlFilePath($url, 'html');
-		return $this->isCached($filePath);
-	}
+	public function isCached($type, $guid) {
+		$filter   = $this->getCacheFilter($type);
+		$filePath = $filter->getFilePath($guid);
 
-	public function getHtml($url) {
-		$filePath = $this->getUrlFilePath($url, 'html');
-		return $this->load($filePath);
-	}
-	
-	public function cacheHtml($url, $data) {
-		$filePath = $this->getUrlFilePath($url, 'html');
-		return $this->save($filePath, $data);
-	}
-
-
-
-	public function isXmlCached($url, $time=false) {
-		$filePath = $this->getUrlFilePath($url, 'xml');
-		return $this->isCached($filePath);
-	}
-
-	public function getXml($url) {
-		$filePath = $this->getUrlFilePath($url, 'xml');
-		return $this->load($filePath);
-	}
-	
-	public function cacheXml($url, $data) {
-		$filePath = $this->getUrlFilePath($url, 'xml');
-		return $this->save($filePath, $data);
-	}
-
-
-
-	public function isCalaisCached($url, $time=false) {
-		$filePath = $this->getUrlFilePath($url, 'calais.xml');
-		return $this->isCached($filePath);
-	}
-
-	public function getCalais($url) {
-		$filePath = $this->getUrlFilePath($url, 'calais.xml');
-		return $this->load($filePath);
-	}
-	
-	public function cacheCalais($url, $data) {
-		$filePath = $this->getUrlFilePath($url, 'calais.xml');
-		return $this->save($filePath, $data);
-	}
-
-
-
-	public function isJsonCached($url, $time=false) {
-		$filePath = $this->getUrlFilePath($url, 'json');
-		return $this->isCached($filePath);
-	}
-
-	public function getJson($url) {
-		$filePath = $this->getUrlFilePath($url, 'json');
-		return $this->load($filePath);
-	}
-	
-	public function cacheJson($url, $data) {
-		$filePath = $this->getUrlFilePath($url, 'json');
-		return $this->save($filePath, $data);
-	}
-
-
-
-	protected function isCached($filePath, $time=false) {
 		if (file_exists($filePath)) {
 			// TODO: check staleness if there is a time parameter.
 			return true;
@@ -100,62 +38,62 @@ class NewsForgeCache {
 		return false;
 	}	
 	
-	protected function save($filePath, $data) {
+	public function cache($type, $guid, $data) {
+		$filter   = $this->getCacheFilter($type);
+		$filePath = $filter->getFilePath($guid, $data);
+		$ser      = $filter->serialiseObject($data);
+
 		// TODO: put some error checking in here
-		file_put_contents($filePath, $data);
+		file_put_contents($filePath, $ser);
 	}
 	
-	protected function load($filePath) {
+	public function get($type, $guid) {
+		$filter   = $this->getCacheFilter($type);
+		$filePath = $filter->getFilePath($guid);
+
 		if (file_exists($filePath)) {
 			// Put some error checking in here
-			return file_get_contents($filePath);
+			$ser = file_get_contents($filePath);
+			return $filter->unserialiseObject($ser);
 		}
 		return NULL;
 	}
-	
-	
-	protected function getUrlFilePath($url, $ext) {
-		$domain = $this->getDomain($url);
-		$key    = $this->getUrlKey($url, $ext);
-		
-		$extPath = '';
-		switch($ext) {
-			case 'html':
-				$extPath = $this->htmlDir;
-				break;
-			case 'xml':
-			case 'calais.xml':
-				$extPath = $this->xmlDir;
-				break;
-			case 'ser':
-			case 'json':
-				$extPath = $this->dataDir;
-				break;
-			default:
-				$extPath = $this->miscDir;
-				break;
-		}
-		
-		if ($this->initDomainDir($domain)) {
-			$filePath = $this->rootDir . $extPath . $domain . '/' . 
-				$key . '.' . $ext;	
-		}
-			
-		return $filePath;
-	}
 
-	protected function getDomain($url) {
-		$segments = parse_url($url);
-		return $segments['host'];
-	}
+
 	
-	protected function getUrlKey($url) {
-		return md5($url);
-	}
 	
-	protected function splitUrl($url) {
-		return parse_url($url);
-	}
+	
+	protected function getCacheFilter($type) {
+		$filter = NULL;
+		if(empty($this->cacheTypes[$type])) {
+			$type = $this->defaultCacheType;
+		}
+		if (empty($this->cacheFilters[$type])) {
+			// Create a new filter
+			if (!empty($this->cacheTypes[$type])) {
+				$className = $this->cacheTypes[$type];
+				if (class_exists($className)) {
+					$cacheExt = new $className();
+					if (is_a($cacheExt, 'NewsForgeGenericCache')) {
+						$cacheExt->setRootDir($this->rootDir);
+						$this->cacheFilters[$type] = $cacheExt;
+						$filter = $cacheExt;
+					} else {
+						echo "ERROR: $className does not extend NewsForgeGenericCache\n";
+					}
+				} else {
+					echo "ERROR: No cache class called $className found.\n";
+				}
+			} else {
+				echo "ERROR: No cache type for $type defined\n";
+			}
+			
+		} else {
+			// Reuse the already created Filter
+			$filter = $this->cacheFilters[$type];
+		}
+		return $filter;
+	}	
 	
 	protected function isCacheReadyDir($dir) {
 		if (file_exists($dir)) {
@@ -173,39 +111,92 @@ class NewsForgeCache {
 		}
 		return false;
 	}
+		
+}
+
+
+class NewsForgeGenericCache {
+	protected $rootDir;
+
+	protected $defaultExpiry = 30;
+	protected $dir = 'misc/';
+	protected $ext = '.data';
 	
-	protected function initRootDir() {
-		$dirList = array( 
-			$this->htmlDir, $this->dataDir, 
-			$this->xmlDir, $this->miscDir 
-		);
-		foreach($dirList as $dir) {
-			$dirPath = $this->rootDir . $dir;
-			if (!file_exists($dirPath)) {
-				if (!mkdir($dirPath)) {
-					echo "ERROR: Couldn't create $dirPath\n";
-				}				
-			}
-		}
+	public function setRootDir($rootDir) {
+		$this->rootDir = $rootDir;
+		$this->initTypeDir();
+	}	
+
+	public function getFilePath($guid, $obj=false) {
+		return $this->getFullPath() . $guid . $this->ext;	
 	}
 	
-	protected function initDomainDir($domain) {
-		$dirList = array( 
-			$this->htmlDir, $this->dataDir, 
-			$this->xmlDir, $this->miscDir 
-		);
-		foreach($dirList as $dir) {
-			$dirPath = $this->rootDir . $dir . $domain . '/';
-			if (!file_exists($dirPath)) {
-				if (!mkdir($dirPath)) {
-					echo "ERROR: Couldn't create $dirPath\n";
-					return false;
-				}				
-			}
+	public function serialiseObject($obj) {
+		return $obj;
+	}
+	
+	public function unserialiseObject($obj) {
+		return $obj;
+	}
+
+
+	protected function getFullPath($domain) {
+		$domainDir = $this->rootDir . $this->dir . $domain . '/';
+		if (!$this->initDomainDir($domainDir)) {
+			return NULL;
+		}
+		return $domainDir;
+	}
+	
+	protected function initTypeDir() {
+		$dirPath = $this->rootDir . $this->dir;
+		if (!file_exists($dirPath)) {
+			if (!mkdir($dirPath)) {
+				echo "ERROR: Couldn't create $dirPath\n";
+				return false;
+			}				
 		}
 		return true;
 	}
+
+	protected function initDomainDir($domainDir) {
+		if (!file_exists($domainDir)) {
+			if (!mkdir($domainDir)) {
+				echo "ERROR: Couldn't create $domainDir\n";
+				return false;
+			}				
+		}
+		return true;
+	}
+
+	protected function getDomain($url) {
+		$segments = parse_url($url);
+		return $segments['host'];
+	}
+}
+
+class NewsForgeXmlCache extends NewsForgeGenericCache {
+	protected $dir = 'xml/';
+	protected $ext = '.xml';
 	
+	public function getFilePath($guid, $obj=false) {
+		$domain = $this->getDomain($guid);
+		$key    = md5($guid);
+		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
+		return $filePath;
+	}
+}
+
+class NewsForgeHtmlCache extends NewsForgeGenericCache {
+	protected $dir = 'html/';
+	protected $ext = '.html';
+	
+	public function getFilePath($guid, $obj=false) {
+		$domain = $this->getDomain($guid);
+		$key    = md5($guid);
+		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
+		return $filePath;
+	}
 }
 
 
