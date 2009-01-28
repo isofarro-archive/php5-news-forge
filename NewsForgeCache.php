@@ -5,6 +5,7 @@ class NewsForgeCache {
 	protected $htmlDir    = 'html/';
 	protected $dataDir    = 'data/';
 	protected $xmlDir     = 'xml/';
+	protected $miscDir    = 'misc/';
 
 	protected $defaultExpiry = 30;
 
@@ -40,6 +41,55 @@ class NewsForgeCache {
 
 
 
+	public function isXmlCached($url, $time=false) {
+		$filePath = $this->getUrlFilePath($url, 'xml');
+		return $this->isCached($filePath);
+	}
+
+	public function getXml($url) {
+		$filePath = $this->getUrlFilePath($url, 'xml');
+		return $this->load($filePath);
+	}
+	
+	public function cacheXml($url, $data) {
+		$filePath = $this->getUrlFilePath($url, 'xml');
+		return $this->save($filePath, $data);
+	}
+
+
+
+	public function isCalaisCached($url, $time=false) {
+		$filePath = $this->getUrlFilePath($url, 'calais.xml');
+		return $this->isCached($filePath);
+	}
+
+	public function getCalais($url) {
+		$filePath = $this->getUrlFilePath($url, 'calais.xml');
+		return $this->load($filePath);
+	}
+	
+	public function cacheCalais($url, $data) {
+		$filePath = $this->getUrlFilePath($url, 'calais.xml');
+		return $this->save($filePath, $data);
+	}
+
+
+
+	public function isJsonCached($url, $time=false) {
+		$filePath = $this->getUrlFilePath($url, 'json');
+		return $this->isCached($filePath);
+	}
+
+	public function getJson($url) {
+		$filePath = $this->getUrlFilePath($url, 'json');
+		return $this->load($filePath);
+	}
+	
+	public function cacheJson($url, $data) {
+		$filePath = $this->getUrlFilePath($url, 'json');
+		return $this->save($filePath, $data);
+	}
+
 
 
 	protected function isCached($filePath, $time=false) {
@@ -74,13 +124,21 @@ class NewsForgeCache {
 				$extPath = $this->htmlDir;
 				break;
 			case 'xml':
+			case 'calais.xml':
 				$extPath = $this->xmlDir;
+				break;
+			case 'ser':
+			case 'json':
+				$extPath = $this->dataDir;
+				break;
+			default:
+				$extPath = $this->miscDir;
 				break;
 		}
 		
 		if ($this->initDomainDir($domain)) {
 			$filePath = $this->rootDir . $extPath . $domain . '/' . 
-				$key . '.html';	
+				$key . '.' . $ext;	
 		}
 			
 		return $filePath;
@@ -117,7 +175,10 @@ class NewsForgeCache {
 	}
 	
 	protected function initRootDir() {
-		$dirList = array( $this->htmlDir, $this->dataDir, $this->xmlDir );
+		$dirList = array( 
+			$this->htmlDir, $this->dataDir, 
+			$this->xmlDir, $this->miscDir 
+		);
 		foreach($dirList as $dir) {
 			$dirPath = $this->rootDir . $dir;
 			if (!file_exists($dirPath)) {
@@ -129,7 +190,10 @@ class NewsForgeCache {
 	}
 	
 	protected function initDomainDir($domain) {
-		$dirList = array( $this->htmlDir, $this->dataDir, $this->xmlDir );
+		$dirList = array( 
+			$this->htmlDir, $this->dataDir, 
+			$this->xmlDir, $this->miscDir 
+		);
 		foreach($dirList as $dir) {
 			$dirPath = $this->rootDir . $dir . $domain . '/';
 			if (!file_exists($dirPath)) {
