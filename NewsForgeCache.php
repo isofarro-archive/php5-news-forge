@@ -114,13 +114,13 @@ class NewsForgeCache {
 				if (is_writeable($dir)) {
 					return true;
 				} else {
-					$this->logError('WARN', "Cache directory $dir is not writeable.");
+					echo "WARN: Cache directory $dir is not writeable.";
 				}
 			} else {
-				$this->logError('WARN', "$dir is not a directory.");
+				echo "WARN: $dir is not a directory.";
 			}		
 		} else {
-			$this->logError('WARN', "Cache directory $dir does not exist.");
+			echo "WARN: Cache directory $dir does not exist.";
 		}
 		return false;
 	}
@@ -202,7 +202,7 @@ class NewsForgeObjectCache extends NewsForgeGenericCache {
 	public function getFilePath($guid, $obj=false) {
 		// The GUID is it. No domain name with a generic object cache
 		// TODO: probably should strip nasty chars from guid.
-		$key = $guid;
+		$key      = $guid;
 		$filePath = $this->getFullPath(false) . $key . $this->ext;	
 		return $filePath;
 	}
@@ -244,7 +244,7 @@ class NewsForgeStoryCache extends NewsForgeObjectCache {
 			$domain = $this->getDomain($obj);
 		}
 
-		$key    = md5($guid);
+		$key      = md5($guid);
 		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
 		return $filePath;
 	}
@@ -255,8 +255,8 @@ class NewsForgeUrlCache extends NewsForgeGenericCache {
 	protected $ext = '.url';
 
 	public function getFilePath($guid, $obj=false) {
-		$domain = $this->getDomain($guid);
-		$key    = md5($guid);
+		$domain   = $this->getDomain($guid);
+		$key      = md5($guid);
 		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
 		return $filePath;
 	}
