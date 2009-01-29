@@ -9,6 +9,9 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 	protected $htmlUrl  = 'http://www.example.com/index.html';
 	protected $htmlBody = '<h1>This is a test html file</h1>';
 
+	protected $xmlUrl  = 'http://www.example.com/index.xml';
+	protected $xmlBody = '<xml>This is a test xml file</xml>';
+
 	protected function setUp() {
 		// Create a cache directory
 		if (!mkdir($this->cacheRootDir)) {
@@ -80,6 +83,33 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 		$success = $cache->delete('html', $this->htmlUrl);
 		$this->assertFalse($success);
 		$this->assertFalse($cache->isCached('html', $this->htmlUrl));
+	}
+
+	public function testXmlCache() {
+		$cache = new NewsForgeCache();
+		$cache->setRootDir($this->cacheRootDir);
+
+		$this->assertFalse($cache->isCached('xml', $this->xmlUrl));
+		
+		$cache->cache('xml', $this->xmlUrl, $this->xmlBody);
+		$this->assertTrue($cache->isCached('xml', $this->xmlUrl));
+		
+		$xmlBody = $cache->get('xml', $this->xmlUrl);
+
+		$cacheFilename = $this->cacheRootDir . 'xml/www.example.com/' .
+			md5($this->xmlUrl) . '.xml';
+		$this->assertTrue(file_exists($cacheFilename));		
+		
+		$this->assertNotNull($xmlBody);
+		$this->assertEquals($xmlBody, $this->xmlBody);
+		
+		$success = $cache->delete('xml', $this->xmlUrl);
+		$this->assertTrue($success);
+		$this->assertFalse($cache->isCached('xml', $this->xmlUrl));
+		
+		$success = $cache->delete('xml', $this->xmlUrl);
+		$this->assertFalse($success);
+		$this->assertFalse($cache->isCached('xml', $this->xmlUrl));
 	}
 
 }
