@@ -71,7 +71,7 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 
 		$cacheFilename = $this->cacheRootDir . 'html/www.example.com/' .
 			md5($this->htmlUrl) . '.html';
-		$this->assertTrue(file_exists($cacheFilename));		
+		$this->assertTrue(file_exists($cacheFilename));
 		
 		$this->assertNotNull($htmlBody);
 		$this->assertEquals($htmlBody, $this->htmlBody);
