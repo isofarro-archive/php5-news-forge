@@ -14,6 +14,10 @@ class NewsForgeCache {
 		'json'   => 'NewsForgeJsonCache',
 		'misc'   => 'NewsForgeGenericCache'
 	);
+
+	public function getRootDir() {
+		return $this->rootDir;
+	}
 	
 	public function setRootDir($dir) {
 		// Check the dir ends in a /
@@ -59,6 +63,15 @@ class NewsForgeCache {
 		return NULL;
 	}
 
+	public function delete($type, $guid) {
+		$filter   = $this->getCacheFilter($type);
+		$filePath = $filter->getFilePath($guid);
+
+		if (file_exists($filePath)) {
+			return unlink($filePath);
+		}
+		return false;
+	}	
 
 	
 	
@@ -122,6 +135,9 @@ class NewsForgeGenericCache {
 	protected $dir = 'misc/';
 	protected $ext = '.data';
 	
+	// TODO: set get/set for $dir and $ext
+	// Check that they are clean alphanumerics
+	
 	public function setRootDir($rootDir) {
 		$this->rootDir = $rootDir;
 		$this->initTypeDir();
@@ -141,9 +157,13 @@ class NewsForgeGenericCache {
 
 
 	protected function getFullPath($domain) {
-		$domainDir = $this->rootDir . $this->dir . $domain . '/';
-		if (!$this->initDomainDir($domainDir)) {
-			return NULL;
+		if ($domain === false) {
+			$domainDir = $this->rootDir . $this->dir;
+		} else {
+			$domainDir = $this->rootDir . $this->dir . $domain . '/';
+			if (!$this->initDomainDir($domainDir)) {
+				return NULL;
+			}
 		}
 		return $domainDir;
 	}
@@ -175,7 +195,28 @@ class NewsForgeGenericCache {
 	}
 }
 
-class NewsForgeStoryCache extends NewsForgeGenericCache {
+class NewsForgeObjectCache extends NewsForgeGenericCache {
+	protected $dir = 'object/';
+	protected $ext = '.obj';
+
+	public function getFilePath($guid, $obj=false) {
+		// The GUID is it. No domain name with a generic object cache
+		// TODO: probably should strip nasty chars from guid.
+		$key = $guid;
+		$filePath = $this->getFullPath(false) . $key . $this->ext;	
+		return $filePath;
+	}
+			
+	public function serialiseObject($obj) {
+		return serialize($obj);
+	}
+	
+	public function unserialiseObject($obj) {
+		return unserialize($obj);
+	}
+}
+
+class NewsForgeStoryCache extends NewsForgeObjectCache {
 	protected $dir = 'story/';
 	protected $ext = '.ser';
 	
@@ -207,21 +248,12 @@ class NewsForgeStoryCache extends NewsForgeGenericCache {
 		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
 		return $filePath;
 	}
-
-	public function serialiseObject($obj) {
-		return serialize($obj);
-	}
-	
-	public function unserialiseObject($obj) {
-		return unserialize($obj);
-	}
-
 }
 
-class NewsForgeXmlCache extends NewsForgeGenericCache {
-	protected $dir = 'xml/';
-	protected $ext = '.xml';
-	
+class NewsForgeUrlCache extends NewsForgeGenericCache {
+	protected $dir = 'url/';
+	protected $ext = '.url';
+
 	public function getFilePath($guid, $obj=false) {
 		$domain = $this->getDomain($guid);
 		$key    = md5($guid);
@@ -230,7 +262,12 @@ class NewsForgeXmlCache extends NewsForgeGenericCache {
 	}
 }
 
-class NewsForgeHtmlCache extends NewsForgeXmlCache {
+class NewsForgeXmlCache extends NewsForgeUrlCache {
+	protected $dir = 'xml/';
+	protected $ext = '.xml';
+}
+
+class NewsForgeHtmlCache extends NewsForgeUrlCache {
 	protected $dir = 'html/';
 	protected $ext = '.html';
 }
@@ -240,7 +277,7 @@ class NewsForgeCalaisCache extends NewsForgeXmlCache {
 	protected $ext = '.calais.xml/';
 }
 
-class NewsForgeJsonCache extends NewsForgeXmlCache {
+class NewsForgeJsonCache extends NewsForgeUrlCache {
 	protected $dir = 'json/';
 	protected $ext = '.json';
 }
