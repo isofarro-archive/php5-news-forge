@@ -175,6 +175,49 @@ class NewsForgeGenericCache {
 	}
 }
 
+class NewsForgeStoryCache extends NewsForgeGenericCache {
+	protected $dir = 'story/';
+	protected $ext = '.ser';
+	
+	public function getFilePath($guid, $obj=false) {
+		// The GUID is going to be ineffectual.
+		// The obj will either be the story object or the URL.
+		$domain = '';
+		
+		if ($obj) {
+			if (is_object($obj) && is_a($obj, 'NewsForgeStory')) {
+				// We have a story object, so can use the original link
+				$domain = $this->getDomain($obj->getLink());
+			} elseif(is_string($obj)) {
+				if (preg_match('/^[^.](\.$[^.])+$/', $obj)) {
+					// The string matches a domain name
+					$domain = $obj;				
+				} else {
+					// Might be a URL. Try to extract a domain
+					$domain = $this->getDomain($obj);
+				}
+			}
+		} else {
+			// So we only have a GUID.
+			// Maybe it is a URL, or a domain based URI
+			$domain = $this->getDomain($obj);
+		}
+
+		$key    = md5($guid);
+		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
+		return $filePath;
+	}
+
+	public function serialiseObject($obj) {
+		return serialize($obj);
+	}
+	
+	public function unserialiseObject($obj) {
+		return unserialize($obj);
+	}
+
+}
+
 class NewsForgeXmlCache extends NewsForgeGenericCache {
 	protected $dir = 'xml/';
 	protected $ext = '.xml';
@@ -187,17 +230,21 @@ class NewsForgeXmlCache extends NewsForgeGenericCache {
 	}
 }
 
-class NewsForgeHtmlCache extends NewsForgeGenericCache {
+class NewsForgeHtmlCache extends NewsForgeXmlCache {
 	protected $dir = 'html/';
 	protected $ext = '.html';
-	
-	public function getFilePath($guid, $obj=false) {
-		$domain = $this->getDomain($guid);
-		$key    = md5($guid);
-		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
-		return $filePath;
-	}
 }
+
+class NewsForgeCalaisCache extends NewsForgeXmlCache {
+	//protected $dir = 'xml/'; // By inheritance
+	protected $ext = '.calais.xml/';
+}
+
+class NewsForgeJsonCache extends NewsForgeXmlCache {
+	protected $dir = 'json/';
+	protected $ext = '.json';
+}
+
 
 
 ?>
