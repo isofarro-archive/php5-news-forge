@@ -176,7 +176,9 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 		
 		$cachedObj = $cache->get('story', $guid, $story);
 
-		$this->assertNotNull($cachedObj->getTitle());
+		$this->assertFalse(is_string($cachedObj));
+		$this->assertTrue(is_object($cachedObj));
+		$this->assertTrue(is_a($cachedObj, 'NewsForgeStory'));
 		$this->assertEquals($cachedObj->getTitle(), $story->getTitle());
 		$this->assertEquals($cachedObj->getPublished(), $story->getPublished());
 		
@@ -217,7 +219,9 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 		
 		$cachedObj = $cache->get('story', $guid, $domain);
 
+		$this->assertFalse(is_string($cachedObj));
 		$this->assertTrue(is_object($cachedObj));
+		$this->assertTrue(is_a($cachedObj, 'NewsForgeStory'));
 		$this->assertNotNull($cachedObj->getTitle());
 		$this->assertEquals($cachedObj->getTitle(), $story->getTitle());
 		$this->assertEquals($cachedObj->getPublished(), $story->getPublished());
