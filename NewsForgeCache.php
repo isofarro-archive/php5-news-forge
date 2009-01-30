@@ -183,7 +183,7 @@ class NewsForgeGenericCache {
 
 	protected function initDomainDir($domainDir) {
 		if (!file_exists($domainDir)) {
-			if (!mkdir($domainDir)) {
+			if (!@mkdir($domainDir)) {
 				echo "ERROR: Couldn't create $domainDir\n";
 				return false;
 			}				
@@ -229,7 +229,7 @@ class NewsForgeStoryCache extends NewsForgeObjectCache {
 		
 		if ($obj!==false) {
 			if (is_string($obj)) {
-				if (preg_match('/^[^.]+(\.[^.]+)+$/', $obj)) {
+				if (preg_match('/^[^.:\/]+(\.[^.]+)+$/', $obj)) {
 					// The string matches a domain name
 					$domain = $obj;				
 				} else {
