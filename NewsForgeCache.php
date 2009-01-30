@@ -10,6 +10,7 @@ class NewsForgeCache {
 		'html'   => 'NewsForgeHtmlCache',
 		'xml'    => 'NewsForgeXmlCache',
 		'calais' => 'NewsForgeCalaisCache',
+		'object' => 'NewsForgeObjectCache',
 		'story'  => 'NewsForgeStoryCache',
 		'json'   => 'NewsForgeJsonCache',
 		'misc'   => 'NewsForgeGenericCache'
@@ -48,7 +49,8 @@ class NewsForgeCache {
 		$ser      = $filter->serialiseObject($data);
 
 		// TODO: put some error checking in here
-		file_put_contents($filePath, $ser);
+		$val = file_put_contents($filePath, $ser);
+		return ($val!==false)?true:false;
 	}
 	
 	public function get($type, $guid) {

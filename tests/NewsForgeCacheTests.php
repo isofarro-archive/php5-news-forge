@@ -64,15 +64,16 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 
 		$this->assertFalse($cache->isCached('html', $this->htmlUrl));
 		
-		$cache->cache('html', $this->htmlUrl, $this->htmlBody);
+		$isCreated = $cache->cache('html', $this->htmlUrl, $this->htmlBody);
+		$this->assertTrue($isCreated);
 		$this->assertTrue($cache->isCached('html', $this->htmlUrl));
 		
-		$htmlBody = $cache->get('html', $this->htmlUrl);
-
 		$cacheFilename = $this->cacheRootDir . 'html/www.example.com/' .
 			md5($this->htmlUrl) . '.html';
 		$this->assertTrue(file_exists($cacheFilename));
 		
+		$htmlBody = $cache->get('html', $this->htmlUrl);
+
 		$this->assertNotNull($htmlBody);
 		$this->assertEquals($htmlBody, $this->htmlBody);
 		
@@ -80,8 +81,8 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($success);
 		$this->assertFalse($cache->isCached('html', $this->htmlUrl));
 		
-		$success = $cache->delete('html', $this->htmlUrl);
-		$this->assertFalse($success);
+		$isDeleted = $cache->delete('html', $this->htmlUrl);
+		$this->assertFalse($isDeleted);
 		$this->assertFalse($cache->isCached('html', $this->htmlUrl));
 	}
 
@@ -91,25 +92,61 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 
 		$this->assertFalse($cache->isCached('xml', $this->xmlUrl));
 		
-		$cache->cache('xml', $this->xmlUrl, $this->xmlBody);
+		$isCreated = $cache->cache('xml', $this->xmlUrl, $this->xmlBody);
+		$this->assertTrue($isCreated);
 		$this->assertTrue($cache->isCached('xml', $this->xmlUrl));
 		
-		$xmlBody = $cache->get('xml', $this->xmlUrl);
-
 		$cacheFilename = $this->cacheRootDir . 'xml/www.example.com/' .
 			md5($this->xmlUrl) . '.xml';
 		$this->assertTrue(file_exists($cacheFilename));		
 		
+		$xmlBody = $cache->get('xml', $this->xmlUrl);
+
 		$this->assertNotNull($xmlBody);
 		$this->assertEquals($xmlBody, $this->xmlBody);
 		
-		$success = $cache->delete('xml', $this->xmlUrl);
-		$this->assertTrue($success);
+		$isDeleted = $cache->delete('xml', $this->xmlUrl);
+		$this->assertTrue($isDeleted);
 		$this->assertFalse($cache->isCached('xml', $this->xmlUrl));
 		
 		$success = $cache->delete('xml', $this->xmlUrl);
 		$this->assertFalse($success);
 		$this->assertFalse($cache->isCached('xml', $this->xmlUrl));
+	}
+
+	public function testObjectCache() {
+		$cache = new NewsForgeCache();
+		$cache->setRootDir($this->cacheRootDir);
+		
+		// Create an object and guid
+		$object = (object) NULL;
+		$object->title     = 'This is a test object';
+		$object->timestamp = time();
+		$guid = 'unit-test-' . $object->timestamp;
+
+		$this->assertFalse($cache->isCached('object', $guid));
+		
+		$isCreated = $cache->cache('object', $guid, $object);
+		$this->assertTrue($isCreated);
+		$this->assertTrue($cache->isCached('object', $guid));
+		
+		$cacheFilename = $this->cacheRootDir . 'object/' .
+			$guid . '.obj';
+		$this->assertTrue(file_exists($cacheFilename));		
+		
+		$cachedObj = $cache->get('object', $guid);
+
+		$this->assertNotNull($cachedObj->title);
+		$this->assertEquals($cachedObj->title, $object->title);
+		$this->assertEquals($cachedObj->timestamp, $object->timestamp);
+		
+		$isDeleted = $cache->delete('object', $guid);
+		$this->assertTrue($isDeleted);
+		$this->assertFalse($cache->isCached('object', $guid));
+		
+		$success = $cache->delete('object', $guid);
+		$this->assertFalse($success);
+		$this->assertFalse($cache->isCached('object', $guid));
 	}
 
 }
