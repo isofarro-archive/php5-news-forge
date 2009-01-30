@@ -1,6 +1,7 @@
 <?php
 
 require_once 'PHPUnit/Framework.php';
+require_once '../NewsForge.php';
 require_once '../NewsForgeCache.php';
 
 class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
@@ -149,6 +150,44 @@ class NewsForgeCacheTests extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($cache->isCached('object', $guid));
 	}
 
+	public function testStoryCache() {
+		$cache = new NewsForgeCache();
+		$cache->setRootDir($this->cacheRootDir);
+		
+		// Create a story and guid
+		$guid = 'unit-test-' . time();
+
+		$story = new NewsForgeStory();
+		$story->setTitle('Unit Test');
+		$story->setLink($this->htmlUrl);
+		$story->setGuid($guid);
+		$story->setPublished(date('c'));
+		$story->setBody('This is a unit test story');
+
+		$this->assertFalse($cache->isCached('story', $guid, $story));
+		
+		$isCreated = $cache->cache('story', $guid, $story);
+		$this->assertTrue($isCreated);
+		$this->assertTrue($cache->isCached('story', $guid, $story));
+		
+		$cacheFilename = $this->cacheRootDir . 'story/www.example.com/' .
+			md5($guid) . '.ser';
+		$this->assertTrue(file_exists($cacheFilename));
+		
+		$cachedObj = $cache->get('story', $guid, $story);
+
+		$this->assertNotNull($cachedObj->getTitle());
+		$this->assertEquals($cachedObj->getTitle(), $story->getTitle());
+		$this->assertEquals($cachedObj->getPublished(), $story->getPublished());
+		
+		$isDeleted = $cache->delete('story', $guid, $story);
+		$this->assertTrue($isDeleted);
+		$this->assertFalse($cache->isCached('story', $guid, $story));
+		
+		$success = $cache->delete('story', $guid, $story);
+		$this->assertFalse($success);
+		$this->assertFalse($cache->isCached('story', $guid, $story));
+	}
 }
 
 
