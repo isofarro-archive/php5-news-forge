@@ -32,9 +32,9 @@ class NewsForgeCache {
 		}
 	}
 
-	public function isCached($type, $guid) {
+	public function isCached($type, $guid, $obj=false) {
 		$filter   = $this->getCacheFilter($type);
-		$filePath = $filter->getFilePath($guid);
+		$filePath = $filter->getFilePath($guid, $obj);
 
 		if (file_exists($filePath)) {
 			// TODO: check staleness if there is a time parameter.
@@ -53,9 +53,9 @@ class NewsForgeCache {
 		return ($val!==false)?true:false;
 	}
 	
-	public function get($type, $guid) {
+	public function get($type, $guid, $obj=false) {
 		$filter   = $this->getCacheFilter($type);
-		$filePath = $filter->getFilePath($guid);
+		$filePath = $filter->getFilePath($guid, $obj);
 
 		if (file_exists($filePath)) {
 			// Put some error checking in here
@@ -65,9 +65,9 @@ class NewsForgeCache {
 		return NULL;
 	}
 
-	public function delete($type, $guid) {
+	public function delete($type, $guid, $obj=false) {
 		$filter   = $this->getCacheFilter($type);
-		$filePath = $filter->getFilePath($guid);
+		$filePath = $filter->getFilePath($guid, $obj);
 
 		if (file_exists($filePath)) {
 			return unlink($filePath);
@@ -227,18 +227,18 @@ class NewsForgeStoryCache extends NewsForgeObjectCache {
 		// The obj will either be the story object or the URL.
 		$domain = '';
 		
-		if ($obj) {
-			if (is_object($obj) && is_a($obj, 'NewsForgeStory')) {
-				// We have a story object, so can use the original link
-				$domain = $this->getDomain($obj->getLink());
-			} elseif(is_string($obj)) {
-				if (preg_match('/^[^.](\.$[^.])+$/', $obj)) {
+		if ($obj!==false) {
+			if (is_string($obj)) {
+				if (preg_match('/^[^.]+(\.[^.]+)+$/', $obj)) {
 					// The string matches a domain name
 					$domain = $obj;				
 				} else {
 					// Might be a URL. Try to extract a domain
 					$domain = $this->getDomain($obj);
 				}
+			} elseif (is_object($obj) && is_a($obj, 'NewsForgeStory')) {
+				// We have a story object, so can use the original link
+				$domain = $this->getDomain($obj->getLink());
 			}
 		} else {
 			// So we only have a GUID.
@@ -247,7 +247,7 @@ class NewsForgeStoryCache extends NewsForgeObjectCache {
 		}
 
 		$key      = md5($guid);
-		$filePath = $this->getFullPath($domain) . $key . $this->ext;	
+		$filePath = $this->getFullPath($domain) . $key . $this->ext;
 		return $filePath;
 	}
 }

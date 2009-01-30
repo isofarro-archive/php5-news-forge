@@ -146,6 +146,7 @@ class NewsForge {
 }
 
 
+/********
 class FileCache {
 
 	public function __construct($dir=false) {
@@ -218,7 +219,7 @@ class FileCache {
 		echo $level, ': ', $msg, "\n";
 	}
 }
-
+********/
 
 /**
 *	NewsForgeStory an object encapsulating story data
