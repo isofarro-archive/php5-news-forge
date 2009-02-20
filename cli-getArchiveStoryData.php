@@ -2,9 +2,6 @@
 
 $cacheDir = 'cache/';
 
-$htmlCacheDir = $cacheDir . 'html/';
-$dataCacheDir = $cacheDir . 'data/uk-reuters-com/';
-
 // Requires php5-http-client
 require_once 'php5-http-client/HttpClient.php';
 require_once 'php5-http-client/HttpRequest.php';
@@ -16,13 +13,12 @@ require_once 'simplehtmldom/simple_html_dom.php';
 // And finally NewsForge itself.
 require_once 'NewsForge.php';
 require_once 'NewsForgeInterfaces.php';
+require_once 'NewsForgeCache.php';
 
 
 $forge = new NewsForge();
-$forge->setCacheDir($cacheDir); //TODO: Move to $htmlCacheDir
+$forge->setCacheDir($cacheDir); 
 //print_r($forge);
-
-$cache = new FileCache($dataCacheDir);
 
 
 // Get all the stories listed on the Reuters UK homepage
@@ -53,13 +49,9 @@ foreach ($stories as $story) {
 		echo $story->getGuid(), ': ', 
 			$story->getTitle(), ' (', 
 			strlen($story->getBody()), ")\n";
-		$cache->cache(
-			$storyData->getCacheKey(),
-			serialize($storyData)
-		);
 	}
 	//break;
-	//sleep(2); // Use when not cached
+	sleep(2); // Use when not HTML cached
 }
 
 
