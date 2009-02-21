@@ -196,23 +196,16 @@ class UkReutersForge extends NewsForgeApi {
 	
 	protected function isSiteLink($href) {
 		if (empty($href)) {
-			//echo "1 - $href\n";
 			return false;
 		} elseif (strpos($href, '/')==0) {
-			//echo "2 - $href\n";
 			return true;
 		} elseif (is_numeric(strpos($href, 'javascript:'))) {
-			//echo "3 - $href\n";
 			return false;
 		} elseif (is_numeric(strpos($href, 'https://'))) {
-			//echo "4 - $href\n";
 			return false;
 		} elseif (is_numeric(strpos($href, 'http://' . $this->domain . '/'))) {
-			//echo "5 - $href\n";
-			//echo "http://{$this->domain}/\n";
 			return true;
 		}
-		//echo "0 - $href\n";
 		//echo "WARN: isSiteLink fallthrough: $href\n";
 		return false;
 	}
