@@ -36,7 +36,8 @@ $forge->setCacheDir($cacheDir);
 // Get all the stories listed on an archive page
 $stories = $forge->getStories(
 	//'http://uk.reuters.com/resources/archive/uk/20090124.html'
-	'http://uk.reuters.com/resources/archive/uk/20090123.html'
+	//'http://uk.reuters.com/resources/archive/uk/20090123.html'
+	'http://uk.reuters.com/resources/archive/uk/20090122.html'
 );
 
 
