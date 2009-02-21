@@ -43,6 +43,22 @@ class NewsForge {
 		return $this->getUrl($url, $refUrl);
 	}
 
+
+	public function spider($startUrl) {
+		$domain  = $this->getDomain($startUrl);
+		$forge   = $this->getForge($domain);
+
+		// Get the first page
+		echo "Getting Url: $startUrl\n";
+		$html    = $this->getUrl($startUrl);
+		$dom     = $this->getDom($html);
+		
+		// Get all the internal links
+		echo "Getting all the links:\n";
+		$links   = $forge->getLinks($dom);
+		print_r($links);
+	}
+	
 	/**
 	*	Takes any URL and returns a list of story links on that page
 	**/
@@ -59,7 +75,7 @@ class NewsForge {
 		return $stories;
 	}	
 
-	
+
 	protected function getDom($html) {
 		return str_get_html($html);
 	}
@@ -146,6 +162,38 @@ class NewsForge {
 
 }
 
+/**
+*	NewsForgeLink: an object encapsulating each links on the page
+**/
+class NewsForgeLink {
+	protected $href;
+	protected $type = 'page';
+	protected $title;
+	
+	public function getHref() {
+		return $this->href;
+	}
+	
+	public function setHref($href) {
+		$this->href = $href;
+	}
+
+	public function getType() {
+		return $this->type;
+	}
+	
+	public function setType($type) {
+		$this->type = $type;
+	}
+
+	public function getTitle() {
+		return $this->title;
+	}
+	
+	public function setTitle($title) {
+		$this->title = $title;
+	}
+}
 
 /**
 *	NewsForgeStory an object encapsulating story data

@@ -6,6 +6,7 @@ abstract class NewsForgeApi {
 	
 	abstract public function getStory($dom);
 	abstract public function getStories($dom);
+	abstract public function getLinks($dom);
 
 	public function getDomain() {
 		return $this->domain;
@@ -159,6 +160,72 @@ class UkReutersForge extends NewsForgeApi {
 		echo count($stories), " stories\n";
 		return $stories;	
 	}
+	
+	public function getLinks($dom) {
+		echo "INFO: Looking for links...\n";
+		$links = array();
+		
+		$anchors = $dom->find('a');
+		foreach($anchors as $anchor) {
+			if ($this->isSiteLink($anchor->href)) {
+				$link = new NewsForgeLink();
+				$link->setHref($anchor->href);
+				$link->setTitle(trim($anchor->plaintext));
+				$link->setType($this->getLinkType($link->getHref()));
+				
+				if (!$link->getTitle()) {
+					$imageLink = $anchor->find('img', 0);
+					if (!empty($imageLink) && !empty($imageLink->alt)) {
+						//echo "Image ({$imageLink->alt})\n";
+						$link->setTitle('[' . $imageLink->alt . ']');
+					} else {
+						$link->setTitle('');
+					}
+				}
+				
+				$links[] = $link;
+			} else {
+				//if (!empty($anchor->href)) {
+				//	echo "INFO: Discard: {$anchor->href}\n";
+				//}
+			}
+		}
+	
+		return $links;
+	}
+	
+	protected function isSiteLink($href) {
+		if (empty($href)) {
+			//echo "1 - $href\n";
+			return false;
+		} elseif (strpos($href, '/')==0) {
+			//echo "2 - $href\n";
+			return true;
+		} elseif (is_numeric(strpos($href, 'javascript:'))) {
+			//echo "3 - $href\n";
+			return false;
+		} elseif (is_numeric(strpos($href, 'https://'))) {
+			//echo "4 - $href\n";
+			return false;
+		} elseif (is_numeric(strpos($href, 'http://' . $this->domain . '/'))) {
+			//echo "5 - $href\n";
+			//echo "http://{$this->domain}/\n";
+			return true;
+		}
+		//echo "0 - $href\n";
+		//echo "WARN: isSiteLink fallthrough: $href\n";
+		return false;
+	}
+	
+	protected function getLinkType($href) {
+		if (preg_match($this->storyLinkPattern, $href)) {
+			return 'story';
+		}
+		
+		return 'page';
+	}
+	
+	
 	
 	protected function isStoryTitle($title) {
 		if(empty($title)) {

@@ -51,17 +51,32 @@ if (false) {
 }
 
 
-// Cache each story for further processing
-foreach ($stories as $story) {
-	$storyData = $forge->getStory($story);
-	
-	if (!empty($storyData)) {
+if (true) {
+	echo "Pre-caching story html:\n";
+	foreach ($stories as $story) {
+		$storyData = $forge->getStoryHtml(
+			$story->getParseStoryLink(),
+			$story->getLink()
+		);
 		echo $story->getGuid(), ': ', 
-			$story->getTitle(), ' (', 
-			strlen($story->getBody()), ")\n";
+				$story->getTitle(), ' (', 
+				strlen($storyData), ")\n"; 
+		//break;
+		sleep(2); // Use when not HTML cached
 	}
-	//break;
-	sleep(2); // Use when not HTML cached
+} else {
+	// Cache and process each story for further processing
+	foreach ($stories as $story) {
+		$storyData = $forge->getStory($story);
+		
+		if (!empty($storyData)) {
+			echo $story->getGuid(), ': ', 
+				$story->getTitle(), ' (', 
+				strlen($story->getBody()), ")\n";
+		}
+		//break;
+		sleep(2); // Use when not HTML cached
+	}
 }
 
 
