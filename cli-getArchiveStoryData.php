@@ -4,11 +4,7 @@
 $cacheDir = 'cache/';
 
 // Override for DEV env:
-$devCacheDir = '/media/disk/data-cache/newsforge/';
-if (file_exists($devCacheDir) && is_dir($devCacheDir)) {
-	echo "Cache using $devCacheDir\n";
-	$cacheDir = $devCacheDir;
-}
+include_once 'config.php';
 
 
 // Requires php5-http-client
@@ -27,57 +23,37 @@ require_once 'NewsForgeCache.php';
 
 $forge = new NewsForge();
 $forge->setCacheDir($cacheDir); 
-//print_r($forge);
 
-
-// Get all the stories listed on the Reuters UK homepage
-//$stories = $forge->getStories('http://uk.reuters.com/');
-
-// Get all the stories listed on an archive page
-$stories = $forge->getStories(
-	//'http://uk.reuters.com/resources/archive/uk/20090124.html'
-	//'http://uk.reuters.com/resources/archive/uk/20090123.html'
-	'http://uk.reuters.com/resources/archive/uk/20090122.html'
+$archives = array(
+	'20090120', '20090119', '20090118', '20090117',
+	'20090116', '20090115', '20090114', '20090113'
 );
 
+foreach ($archives as $archive) {
+	$archiveUrl = 'http://uk.reuters.com/resources/archive/uk/' . $archive . '.html';
+	$stories = $forge->getStories($archiveUrl);
 
-if (false) {
-	foreach ($stories as $story) {
-		//echo " * ", $story->getTitle(), "\n";
-		if (strlen($story->getGuid()) < 16) {
-			echo $story->getGuid(), ': ', substr($story->getTitle(),0, 40), "\n";
-			//echo ' * ', $story->getLink(), "\n";
-		}
-	}
-}
-
-
-if (true) {
+	$total = count($stories);
+	echo "$total stories from $archive.\n";
 	echo "Pre-caching story html:\n";
+
+	$count = $total;
 	foreach ($stories as $story) {
+		//$storyData = $forge->getStory($story);
 		$storyData = $forge->getStoryHtml(
 			$story->getParseStoryLink(),
 			$story->getLink()
 		);
-		echo $story->getGuid(), ': ', 
-				$story->getTitle(), ' (', 
-				strlen($storyData), ")\n"; 
+		echo 	$count, ':',
+			$story->getGuid(), ': ', 
+			$story->getTitle(), ' (', 
+			strlen($storyData), ")\n";
+		$count--;
+ 
 		//break;
-		sleep(2); // Use when not HTML cached
+		sleep(5); // Use when not HTML cached
 	}
-} else {
-	// Cache and process each story for further processing
-	foreach ($stories as $story) {
-		$storyData = $forge->getStory($story);
-		
-		if (!empty($storyData)) {
-			echo $story->getGuid(), ': ', 
-				$story->getTitle(), ' (', 
-				strlen($story->getBody()), ")\n";
-		}
-		//break;
-		sleep(2); // Use when not HTML cached
-	}
+	echo "-------------------------------\n";
 }
 
 

@@ -82,7 +82,8 @@ class NewsForge {
 		$forge->setUrl($url);
 		$dom     = $this->getDom($html);
 		$stories = $forge->getStories($dom);
-		
+		$dom->clear();
+	
 		return $stories;
 	}	
 

@@ -1,0 +1,7 @@
+<?php
+
+# Root directory of the data cache.
+# This directory must exist and be writable
+$cacheDir = 'cache/';
+
+?>

@@ -5,4 +5,7 @@
 # Ignore the cache directory
 cache/*
 
+# Ignore local configuration file
+config.php
+
 
