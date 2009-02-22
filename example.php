@@ -2,8 +2,9 @@
 
 $cacheDir = 'cache/';
 
-//$htmlCacheDir = $cacheDir . 'html/';
-//$dataCacheDir = $cacheDir . 'data/uk-reuters-com/';
+# Override with any local configuration
+include_once 'config.php';
+
 
 // Requires php5-http-client
 require_once 'php5-http-client/HttpClient.php';

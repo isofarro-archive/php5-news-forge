@@ -4,11 +4,13 @@
 $cacheDir = 'cache/';
 
 // Override for DEV env:
-$devCacheDir = '/media/disk/data-cache/newsforge/';
-if (file_exists($devCacheDir) && is_dir($devCacheDir)) {
-	echo "Cache using $devCacheDir\n";
-	$cacheDir = $devCacheDir;
-}
+include_once 'config.php';
+
+//$devCacheDir = '/media/disk/data-cache/newsforge/';
+//if (file_exists($devCacheDir) && is_dir($devCacheDir)) {
+//	echo "Cache using $devCacheDir\n";
+//	$cacheDir = $devCacheDir;
+//}
 
 
 // Requires php5-http-client
@@ -37,7 +39,8 @@ $forge->setCacheDir($cacheDir);
 $stories = $forge->getStories(
 	//'http://uk.reuters.com/resources/archive/uk/20090124.html'
 	//'http://uk.reuters.com/resources/archive/uk/20090123.html'
-	'http://uk.reuters.com/resources/archive/uk/20090122.html'
+	//'http://uk.reuters.com/resources/archive/uk/20090122.html'
+	'http://uk.reuters.com/resources/archive/uk/20090121.html'
 );
 
 
