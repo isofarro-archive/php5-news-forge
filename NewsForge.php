@@ -57,6 +57,17 @@ class NewsForge {
 		echo "Getting all the links:\n";
 		$links   = $forge->getLinks($dom);
 		print_r($links);
+		
+		// TODO: iterate through the links
+		// Put stories into one queue and the rest into another
+		
+		// Then work through the queues
+		// Check before dealing with an entry whether there is a cache
+		// and whether it is fresh for that pagetype
+		// Use the page type to decide whether the current cache is fresh
+		// static: story, archive
+		// dynamic: everything else
+		
 	}
 	
 	/**
