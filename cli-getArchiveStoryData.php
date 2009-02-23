@@ -5,6 +5,7 @@ $cacheDir = 'cache/';
 
 // Override for DEV env:
 include_once 'config.php';
+include_once 'archiveQueue.php';
 
 
 // Requires php5-http-client
@@ -24,10 +25,12 @@ require_once 'NewsForgeCache.php';
 $forge = new NewsForge();
 $forge->setCacheDir($cacheDir); 
 
-$archives = array(
-	'20090120', '20090119', '20090118', '20090117',
-	'20090116', '20090115', '20090114', '20090113'
-);
+if (empty($archives)) {
+	$archives = array(
+		'20090120', '20090119', '20090118', '20090117',
+		'20090116', '20090115', '20090114', '20090113'
+	);
+}
 
 foreach ($archives as $archive) {
 	$archiveUrl = 'http://uk.reuters.com/resources/archive/uk/' . $archive . '.html';
