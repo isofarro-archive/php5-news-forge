@@ -213,6 +213,8 @@ class UkReutersForge extends NewsForgeApi {
 	protected function getLinkType($href) {
 		if (preg_match($this->storyLinkPattern, $href)) {
 			return 'story';
+		} elseif (preg_match('/\/archive\//', $href)) {
+			return 'archive';
 		}
 		
 		return 'page';
